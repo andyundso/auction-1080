@@ -24,3 +24,6 @@ yarn-error.log*
 
 # Ignore IntellJ temp files
 .idea/*
+
+# Ignore secrets in .env
+.env
