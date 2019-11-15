@@ -1,8 +1,8 @@
-import React, {useEffect, useState} from 'react';
+import React, { useEffect, useState } from 'react';
 import './App.css';
-import {Button, Col, Container, Form, FormGroup, Input, Label, Row} from "reactstrap";
+import { Button, Col, Container, Form, FormGroup, Input, Label, Row } from "reactstrap";
 import firebase from './helpers/firebase';
-import {firestore} from 'firebase';
+import { firestore } from 'firebase';
 
 interface Bid {
   bid: number;
@@ -24,7 +24,7 @@ function formatDate(date: Date) {
 
 const App: React.FC = () => {
   const [bids, setBids] = useState<Bid[]>([]);
-  const [newBid, setNewBid] = useState<NewBid>({name: '', bid: 0});
+  const [newBid, setNewBid] = useState<NewBid>({ name: '', bid: 0 });
   const [lastUpdated, setLastUpdated] = useState<Date>(new Date());
 
   async function getFirebaseDocs() {
@@ -33,7 +33,7 @@ const App: React.FC = () => {
     const fireBaseBids = (snapshot.docs.map(doc => doc.data()) as Bid[]).sort((a, b) => b.bid - a.bid);
 
     setBids(fireBaseBids);
-    setNewBid({...newBid, bid: fireBaseBids[0].bid + 1});
+    setNewBid({ ...newBid, bid: fireBaseBids[0].bid + 1 });
     setLastUpdated(new Date);
   }
 
@@ -56,14 +56,14 @@ const App: React.FC = () => {
     e.preventDefault();
 
     const db = firebase.firestore();
-    db.collection('bids').add({name: newBid.name, bid: Number(newBid.bid), created_at: firestore.Timestamp.now()});
+    db.collection('bids').add({ name: newBid.name, bid: Number(newBid.bid), created_at: firestore.Timestamp.now() });
     getFirebaseDocs()
   };
 
   if (bids.length > 0) {
     return <Container>
       <Row>
-        <Col sm="12" md={{size: 6, offset: 3}}>
+        <Col sm="12" md={{ size: 6, offset: 3 }}>
           <h1>OUHNDY'S 1080 AUKTION</h1>
 
           <Row>
@@ -72,24 +72,25 @@ const App: React.FC = () => {
             </Col>
           </Row>
 
-          <br/>
+          <br />
 
           <Form>
             <FormGroup>
               <Label for={"name"}>Name</Label>
-              <Input type={"text"} name={"name"} placeholder={"Max Müller"} value={newBid.name}
-                     onChange={handleChange}/>
+              <Input required type={"text"} name={"name"} placeholder={"Max Müller"} value={newBid.name}
+                onChange={handleChange} />
             </FormGroup>
 
             <FormGroup>
               <Label for={"bid"}>Dein Angebot</Label>
-              <Input type={"number"} min={bids[0].bid + 1} name={"bid"} value={newBid.bid} onChange={handleChange}/>
+              <Input required type={"number"} min={bids[0].bid + 1} pattern="[0-9]" name={"bid"} value={newBid.bid}
+                onChange={handleChange} />
             </FormGroup>
 
             <Button onClick={addBid}>Einreichen</Button>
           </Form>
 
-          <br/>
+          <br />
 
           {bids.map((bid: Bid) => (
             <Row key={bid.bid}>
