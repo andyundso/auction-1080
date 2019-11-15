@@ -1,13 +1,13 @@
 import React, {useEffect, useState} from 'react';
 import './App.css';
 import {Button, Col, Container, Form, FormGroup, Input, Label, Row} from "reactstrap";
-import firebase from './initializer/firebase';
+import firebase from './helpers/firebase';
 import {firestore} from 'firebase';
 
 interface Bid {
   bid: number;
   created_at: firestore.Timestamp
-  name: string,
+  name: string
 }
 
 interface NewBid {
@@ -15,9 +15,17 @@ interface NewBid {
   name: string
 }
 
+function formatDate(date: Date) {
+  return `${date.toLocaleDateString('de-CH')} ${date.toLocaleTimeString('de-CH', {
+    hour: "numeric",
+    minute: "numeric"
+  })}`
+}
+
 const App: React.FC = () => {
   const [bids, setBids] = useState<Bid[]>([]);
   const [newBid, setNewBid] = useState<NewBid>({name: '', bid: 0});
+  const [lastUpdated, setLastUpdated] = useState<Date>(new Date());
 
   async function getFirebaseDocs() {
     const db = firebase.firestore();
@@ -26,16 +34,23 @@ const App: React.FC = () => {
 
     setBids(fireBaseBids);
     setNewBid({...newBid, bid: fireBaseBids[0].bid + 1});
+    setLastUpdated(new Date)
   }
 
   useEffect(() => {
-    getFirebaseDocs()
+    getFirebaseDocs();
+
+    const interval = setInterval(() => {
+      getFirebaseDocs()
+    }, 60000);
+
+    return () => clearInterval(interval);
   }, []);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => setNewBid({
-      ...newBid,
-      [e.target.name]: e.target.value,
-    });
+    ...newBid,
+    [e.target.name]: e.target.value,
+  });
 
   const addBid = (e: React.MouseEvent<any, MouseEvent>) => {
     e.preventDefault();
@@ -51,12 +66,19 @@ const App: React.FC = () => {
         <Col sm="12" md={{size: 6, offset: 3}}>
           <h1>OUHNDY'S 1080 AUKTION</h1>
 
+          <Row>
+            <Col className={"text-right"}>
+              <p>Zuletzt aktualisiert: {formatDate(lastUpdated)}</p>
+            </Col>
+          </Row>
+
           <br/>
 
           <Form>
             <FormGroup>
               <Label for={"name"}>Name</Label>
-              <Input type={"text"} name={"name"} placeholder={"Max Müller"} value={newBid.name} onChange={handleChange}/>
+              <Input type={"text"} name={"name"} placeholder={"Max Müller"} value={newBid.name}
+                     onChange={handleChange}/>
             </FormGroup>
 
             <FormGroup>
@@ -76,10 +98,7 @@ const App: React.FC = () => {
               </Col>
               <Col className={"text-right"}>
                 <h3>{bid.bid} CHF</h3>
-                <p>{bid.created_at.toDate().toLocaleDateString('de-CH')} {bid.created_at.toDate().toLocaleTimeString('de-CH', {
-                  hour: "numeric",
-                  minute: "numeric"
-                })}</p>
+                <p>{formatDate(bid.created_at.toDate())}</p>
               </Col>
             </Row>
           ))}
