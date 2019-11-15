@@ -52,12 +52,14 @@ const App: React.FC = () => {
     [e.target.name]: e.target.value,
   });
 
-  const addBid = (e: React.MouseEvent<any, MouseEvent>) => {
+  const addBid = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    const db = firebase.firestore();
-    db.collection('bids').add({ name: newBid.name, bid: Number(newBid.bid), created_at: firestore.Timestamp.now() });
-    getFirebaseDocs()
+    if (e.currentTarget.checkValidity()) {
+      const db = firebase.firestore();
+      db.collection('bids').add({ name: newBid.name, bid: Number(newBid.bid), created_at: firestore.Timestamp.now() });
+      getFirebaseDocs()
+    }
   };
 
   if (bids.length > 0) {
@@ -74,7 +76,7 @@ const App: React.FC = () => {
 
           <br />
 
-          <Form>
+          <Form onSubmit={addBid}>
             <FormGroup>
               <Label for={"name"}>Name</Label>
               <Input required type={"text"} name={"name"} placeholder={"Max Müller"} value={newBid.name}
@@ -87,7 +89,7 @@ const App: React.FC = () => {
                 onChange={handleChange} />
             </FormGroup>
 
-            <Button onClick={addBid}>Einreichen</Button>
+            <Button>Einreichen</Button>
           </Form>
 
           <br />
