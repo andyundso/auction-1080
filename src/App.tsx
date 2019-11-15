@@ -34,7 +34,7 @@ const App: React.FC = () => {
 
     setBids(fireBaseBids);
     setNewBid({...newBid, bid: fireBaseBids[0].bid + 1});
-    setLastUpdated(new Date)
+    setLastUpdated(new Date);
   }
 
   useEffect(() => {
@@ -56,7 +56,7 @@ const App: React.FC = () => {
     e.preventDefault();
 
     const db = firebase.firestore();
-    db.collection('bids').add({...newBid, created_at: firestore.Timestamp.now()});
+    db.collection('bids').add({name: newBid.name, bid: Number(newBid.bid), created_at: firestore.Timestamp.now()});
     getFirebaseDocs()
   };
 
